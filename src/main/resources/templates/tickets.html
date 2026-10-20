@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>My Tickets | SupportFlow</title>
+    <meta name="theme-color" content="#080d1b">
+
+    <style>
+        :root {
+            --bg: #080d1b;
+            --panel: #111a2e;
+            --border: rgba(148, 163, 184, .17);
+            --text: #f8fafc;
+            --muted: #94a3b8;
+            --blue: #60a5fa;
+            --purple: #a78bfa;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            padding: 20px 18px;
+            font-family: "Segoe UI", Inter, Arial, sans-serif;
+            color: var(--text);
+            background:
+                    radial-gradient(ellipse at 0% 0%,
+                    rgba(37, 99, 235, .15), transparent 42%),
+                    radial-gradient(ellipse at 100% 100%,
+                    rgba(124, 58, 237, .13), transparent 42%),
+                    var(--bg);
+        }
+
+        .ambient {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            opacity: .06;
+            background-image:
+                    linear-gradient(rgba(148,163,184,.15) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(148,163,184,.15) 1px, transparent 1px);
+            background-size: 45px 45px;
+            mask-image: linear-gradient(to bottom, black, transparent);
+        }
+
+        .glow {
+            position: fixed;
+            z-index: 0;
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            filter: blur(90px);
+            opacity: .12;
+            pointer-events: none;
+            animation: glowMove 12s ease-in-out infinite alternate;
+        }
+
+        .glow-blue {
+            top: 0;
+            left: -120px;
+            background: #3b82f6;
+        }
+
+        .glow-purple {
+            right: -120px;
+            bottom: 0;
+            background: #8b5cf6;
+            animation-delay: -5s;
+        }
+
+        @keyframes glowMove {
+            to {
+                transform: translate(35px, 25px);
+            }
+        }
+
+        @keyframes enterUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .page {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 1500px;
+            margin: 0 auto;
+            animation: enterUp .5s ease both;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 14px;
+            padding: 14px 19px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            background: rgba(17, 26, 46, .92);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+        }
+
+        .brand-mark {
+            width: 40px;
+            height: 40px;
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            box-shadow: 0 5px 20px rgba(79,70,229,.25);
+            font-size: 21px;
+            font-weight: 850;
+        }
+
+        .brand-name {
+            margin: 0;
+            font-size: 17px;
+            font-weight: 800;
+        }
+
+        .brand-name span {
+            color: #93c5fd;
+        }
+
+        .brand-subtitle {
+            margin-top: 4px;
+            color: #8190aa;
+            font-size: 9px;
+            letter-spacing: 1px;
+        }
+
+        .button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 41px;
+            padding: 10px 15px;
+            border: 1px solid transparent;
+            border-radius: 10px;
+            text-decoration: none;
+            color: white;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: .2s ease;
+        }
+
+        .create-button {
+            background: linear-gradient(115deg, #2563eb, #6d45df);
+            box-shadow: 0 6px 18px rgba(59,130,246,.16);
+        }
+
+        .create-button:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(115deg, #3b82f6, #8b5cf6);
+        }
+
+        .back-button {
+            color: #cbd5e1;
+            background: rgba(30,41,59,.8);
+            border-color: var(--border);
+        }
+
+        .back-button:hover {
+            transform: translateY(-2px);
+            background: #26344d;
+        }
+
+        .container {
+            overflow: hidden;
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            background: rgba(17, 26, 46, .95);
+            box-shadow: 0 24px 65px rgba(0,0,0,.23);
+        }
+
+        .hero {
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 18px;
+            padding: 24px 27px;
+            border-bottom: 1px solid var(--border);
+            background: linear-gradient(110deg,
+            rgba(37,99,235,.16),
+            transparent 65%,
+            rgba(124,58,237,.13));
+        }
+
+        .eyebrow {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 9px;
+            color: #93c5fd;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+        }
+
+        .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #60a5fa;
+            box-shadow: 0 0 10px #60a5fa;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(25px, 3vw, 33px);
+            letter-spacing: -.7px;
+        }
+
+        .accent {
+            color: #a78bfa;
+        }
+
+        .subtitle {
+            margin: 8px 0 0;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .content {
+            padding: 23px 27px 27px;
+        }
+
+        .alert {
+            padding: 12px 15px;
+            margin-bottom: 17px;
+            border-radius: 11px;
+            border: 1px solid transparent;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .success {
+            color: #86efac;
+            background: rgba(34,197,94,.09);
+            border-color: rgba(74,222,128,.2);
+        }
+
+        .error {
+            color: #fca5a5;
+            background: rgba(239,68,68,.09);
+            border-color: rgba(248,113,113,.2);
+        }
+
+        .empty {
+            padding: 42px 20px;
+            text-align: center;
+            border: 1px dashed rgba(148,163,184,.22);
+            border-radius: 15px;
+            background: rgba(8,13,27,.3);
+        }
+
+        .empty-icon {
+            width: 54px;
+            height: 54px;
+            display: grid;
+            place-items: center;
+            margin: 0 auto 15px;
+            border-radius: 16px;
+            background: rgba(59,130,246,.11);
+            color: #93c5fd;
+            font-size: 25px;
+        }
+
+        .empty h2 {
+            margin: 0 0 8px;
+            font-size: 19px;
+        }
+
+        .empty p {
+            margin: 0 0 18px;
+            color: #94a3b8;
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            background: rgba(8,13,27,.35);
+        }
+
+        table {
+            width: 100%;
+            min-width: 1050px;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 14px 12px;
+            text-align: left;
+            vertical-align: middle;
+            border-bottom: 1px solid var(--border);
+            font-size: 12px;
+        }
+
+        th {
+            background: rgba(37,99,235,.12);
+            color: #bfdbfe;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: .4px;
+            white-space: nowrap;
+        }
+
+        td {
+            color: #cbd5e1;
+        }
+
+        tbody tr {
+            transition: background .2s ease;
+        }
+
+        tbody tr:hover {
+            background: rgba(59,130,246,.055);
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .ticket-id {
+            color: #93c5fd;
+            font-weight: 850;
+        }
+
+        .ticket-link {
+            color: #bfdbfe;
+            font-weight: 800;
+            text-decoration: none;
+            overflow-wrap: anywhere;
+        }
+
+        .ticket-link:hover {
+            color: #c4b5fd;
+            text-decoration: underline;
+        }
+
+        .description {
+            min-width: 200px;
+            max-width: 300px;
+            color: #94a3b8;
+            line-height: 1.6;
+            overflow-wrap: anywhere;
+        }
+
+        .date-cell {
+            min-width: 180px;
+            color: #94a3b8;
+            white-space: nowrap;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 9px;
+            border: 1px solid transparent;
+            border-radius: 999px;
+            font-size: 9px;
+            font-weight: 850;
+            letter-spacing: .3px;
+            white-space: nowrap;
+        }
+
+        .status {
+            color: #93c5fd;
+            background: rgba(59,130,246,.12);
+            border-color: rgba(96,165,250,.18);
+        }
+
+        .resolved {
+            color: #86efac;
+            background: rgba(34,197,94,.1);
+            border-color: rgba(74,222,128,.18);
+        }
+
+        .cancelled {
+            color: #cbd5e1;
+            background: rgba(148,163,184,.1);
+            border-color: rgba(148,163,184,.18);
+        }
+
+        .priority-low {
+            color: #86efac;
+            background: rgba(34,197,94,.1);
+        }
+
+        .priority-medium {
+            color: #fcd34d;
+            background: rgba(245,158,11,.1);
+        }
+
+        .priority-high {
+            color: #fdba74;
+            background: rgba(249,115,22,.11);
+        }
+
+        .priority-urgent {
+            color: #fda4af;
+            background: rgba(244,63,94,.11);
+        }
+
+        .cancel-form {
+            margin: 0;
+        }
+
+        .cancel-btn {
+            min-height: 36px;
+            padding: 8px 11px;
+            border: 1px solid rgba(248,113,113,.2);
+            border-radius: 9px;
+            background: rgba(220,38,38,.12);
+            color: #fca5a5;
+            font-size: 10px;
+            font-weight: 800;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: .2s ease;
+        }
+
+        .cancel-btn:hover {
+            background: #dc2626;
+            border-color: #dc2626;
+            color: white;
+        }
+
+        .disabled-text {
+            color: #64748b;
+            font-size: 10px;
+        }
+
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 20px;
+            padding-top: 18px;
+            border-top: 1px solid var(--border);
+        }
+
+        .footer-note {
+            color: #64748b;
+            font-size: 10px;
+        }
+
+        @media (max-width: 650px) {
+            body {
+                padding: 12px;
+            }
+
+            .hero {
+                padding: 20px;
+            }
+
+            .content {
+                padding: 16px;
+            }
+
+            .hero .button {
+                width: 100%;
+            }
+
+            .footer {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .footer .button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="ambient" aria-hidden="true"></div>
+<div class="glow glow-blue" aria-hidden="true"></div>
+<div class="glow glow-purple" aria-hidden="true"></div>
+
+<div class="page">
+
+    <header class="topbar">
+
+        <div class="brand">
+
+            <div class="brand-mark">S</div>
+
+            <div>
+                <h2 class="brand-name">
+                    Support<span>Flow</span>
+                </h2>
+
+                <div class="brand-subtitle">
+                    SUPPORT MANAGEMENT PLATFORM
+                </div>
+            </div>
+
+        </div>
+
+        <a class="button back-button"
+           th:href="@{/dashboard}">
+            ← Back to Dashboard
+        </a>
+
+    </header>
+
+    <main class="container">
+
+        <section class="hero">
+
+            <div>
+
+                <div class="eyebrow">
+                    <span class="dot"></span>
+                    CUSTOMER SUPPORT / MY TICKETS
+                </div>
+
+                <h1>
+                    My Support <span class="accent">Tickets</span>
+                </h1>
+
+                <p class="subtitle">
+                    Track your support requests, review ticket details
+                    and monitor the current status of each issue.
+                </p>
+
+            </div>
+
+            <a class="button create-button"
+               th:href="@{/tickets/new}">
+                + Create New Ticket
+            </a>
+
+        </section>
+
+        <div class="content">
+
+            <div class="alert success"
+                 th:if="${success}"
+                 th:text="${success}">
+                Ticket operation completed successfully.
+            </div>
+
+            <div class="alert error"
+                 th:if="${error}"
+                 th:text="${error}">
+                Something went wrong.
+            </div>
+
+            <section class="empty"
+                     th:if="${#lists.isEmpty(tickets)}">
+
+                <div class="empty-icon">
+                    ＋
+                </div>
+
+                <h2>No tickets yet</h2>
+
+                <p>
+                    You have not created any support tickets.
+                    Create your first request to get started.
+                </p>
+
+                <a class="button create-button"
+                   th:href="@{/tickets/new}">
+                    Create Your First Ticket →
+                </a>
+
+            </section>
+
+            <div class="table-wrapper"
+                 th:unless="${#lists.isEmpty(tickets)}">
+
+                <table>
+
+                    <thead>
+                    <tr>
+                        <th>Ticket ID</th>
+                        <th>Title</th>
+                        <th>Description</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Created At</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+
+                    <tr th:each="ticket : ${tickets}">
+
+                        <td>
+                            <span class="ticket-id">
+                                #<span th:text="${ticket.id}">1</span>
+                            </span>
+                        </td>
+
+                        <td>
+                            <a class="ticket-link"
+                               th:href="@{/tickets/{id}(id=${ticket.id})}"
+                               th:text="${ticket.title}">
+                                Login problem
+                            </a>
+                        </td>
+
+                        <td class="description"
+                            th:text="${ticket.description}">
+                            Unable to log in
+                        </td>
+
+                        <td>
+
+                            <span class="badge"
+                                  th:classappend="${ticket.priority != null
+                                      ? ' priority-' + #strings.toLowerCase(ticket.priority.name())
+                                      : ' priority-medium'}"
+                                  th:text="${ticket.priority != null
+                                      ? ticket.priority.name()
+                                      : 'MEDIUM'}">
+                                MEDIUM
+                            </span>
+
+                        </td>
+
+                        <td>
+
+                            <span class="badge status"
+                                  th:classappend="${ticket.status.name() == 'CANCELLED'
+                                      ? ' cancelled'
+                                      : (ticket.status.name() == 'RESOLVED'
+                                          ? ' resolved'
+                                          : '')}"
+                                  th:text="${ticket.status}">
+                                OPEN
+                            </span>
+
+                        </td>
+
+                        <!-- FORMATTED DATE -->
+                        <td class="date-cell"
+                            th:text="${#temporals.format(
+                                ticket.createdAt,
+                                'dd MMM yyyy, hh:mm a'
+                            )}">
+                            20 Oct 2026, 12:34 PM
+                        </td>
+
+                        <td>
+
+                            <form class="cancel-form"
+                                  th:if="${ticket.status.name() == 'OPEN'}"
+                                  th:action="@{/tickets/{id}/cancel(id=${ticket.id})}"
+                                  method="post"
+                                  onsubmit="return confirm('Are you sure you want to cancel this ticket?');">
+
+                                <button type="submit"
+                                        class="cancel-btn">
+                                    Cancel Ticket
+                                </button>
+
+                            </form>
+
+                            <span class="disabled-text"
+                                  th:unless="${ticket.status.name() == 'OPEN'}">
+                                Not available
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <footer class="footer">
+
+                <span class="footer-note">
+                    SupportFlow · Customer Ticket Management
+                </span>
+
+                <a class="button back-button"
+                   th:href="@{/dashboard}">
+                    ← Back to Dashboard
+                </a>
+
+            </footer>
+
+        </div>
+
+    </main>
+
+</div>
+
+</body>
+</html>

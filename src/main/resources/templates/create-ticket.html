@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Create Request | SupportFlow</title>
+    <meta name="theme-color" content="#080711">
+
+    <style>
+        :root {
+            --bg: #090812;
+            --panel: #151321;
+            --panel-light: #211b31;
+            --border: rgba(190, 170, 255, 0.15);
+            --text: #f7f5ff;
+            --muted: #a39bb8;
+            --purple: #a855f7;
+            --purple-light: #c084fc;
+            --cyan: #67e8f9;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            min-height: 100%;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            min-height: 100svh;
+            padding: 16px;
+            background:
+                    radial-gradient(ellipse at 10% 0%,
+                    rgba(108, 54, 200, 0.17), transparent 42%),
+                    radial-gradient(ellipse at 100% 100%,
+                    rgba(66, 40, 130, 0.13), transparent 45%),
+                    var(--bg);
+            color: var(--text);
+            font-family: "Segoe UI", Arial, sans-serif;
+            font-size: 13px;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button,
+        input,
+        textarea,
+        select {
+            font: inherit;
+        }
+
+        .app {
+            width: 100%;
+            max-width: 1580px;
+            min-height: calc(100svh - 32px);
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        /* HEADER */
+
+        .topbar {
+            min-height: 66px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 10px 20px;
+            background: rgba(13, 11, 23, 0.96);
+            border: 1px solid var(--border);
+            border-radius: 17px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+        }
+
+        .brand-icon {
+            width: 42px;
+            height: 42px;
+            flex-shrink: 0;
+            display: grid;
+            place-items: center;
+            border-radius: 13px;
+            background: linear-gradient(140deg, #7c3aed, #c026d3);
+            box-shadow: 0 5px 22px rgba(168, 85, 247, 0.24);
+            font-size: 22px;
+            font-weight: 900;
+        }
+
+        .brand-name {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .brand-name span {
+            color: var(--purple-light);
+        }
+
+        .brand-subtitle {
+            margin-top: 4px;
+            color: #8f86a5;
+            font-size: 9px;
+            letter-spacing: 1.1px;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .nav-link {
+            padding: 10px 15px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: #c7bfd9;
+            transition: 0.2s ease;
+        }
+
+        .nav-link:hover {
+            background: var(--panel-light);
+            border-color: rgba(192, 132, 252, 0.45);
+        }
+
+        .live-pill {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 10px 13px;
+            border: 1px solid rgba(52, 211, 153, 0.2);
+            border-radius: 10px;
+            background: rgba(16, 185, 129, 0.08);
+            color: #6ee7b7;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .live-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #34d399;
+            box-shadow: 0 0 10px rgba(52, 211, 153, 0.7);
+        }
+
+        /* MAIN LAYOUT */
+
+        .workspace {
+            flex: 1;
+            min-height: 0;
+            display: grid;
+            grid-template-columns: minmax(0, 1.65fr) minmax(260px, 0.72fr);
+            gap: 12px;
+        }
+
+        .main-panel,
+        .side-panel {
+            min-width: 0;
+            overflow: hidden;
+            background: rgba(21, 19, 33, 0.97);
+            border: 1px solid var(--border);
+            border-radius: 19px;
+        }
+
+        .main-panel {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* PAGE INTRODUCTION */
+
+        .hero {
+            position: relative;
+            overflow: hidden;
+            padding: 23px 27px 20px;
+            background:
+                    radial-gradient(circle at 100% 0%,
+                    rgba(139, 92, 246, 0.22), transparent 42%),
+                    linear-gradient(120deg, #211738, #151321 72%);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .hero::after {
+            content: "";
+            position: absolute;
+            width: 145px;
+            height: 145px;
+            right: -65px;
+            top: -95px;
+            border: 1px solid rgba(192, 132, 252, 0.25);
+            border-radius: 50%;
+            box-shadow:
+                    0 0 0 20px rgba(192, 132, 252, 0.035),
+                    0 0 0 40px rgba(192, 132, 252, 0.025);
+            pointer-events: none;
+        }
+
+        .eyebrow {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+            color: #c4a5fd;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+        }
+
+        .eyebrow-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--cyan);
+            box-shadow: 0 0 10px rgba(103, 232, 249, 0.7);
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(25px, 2.5vw, 34px);
+            line-height: 1.2;
+            letter-spacing: -1px;
+        }
+
+        h1 span {
+            color: var(--purple-light);
+        }
+
+        .hero-description {
+            max-width: 540px;
+            margin: 10px 0 0;
+            color: #b2a9c7;
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
+        /* FORM */
+
+        .form-content {
+            flex: 1;
+            padding: 21px 27px 18px;
+        }
+
+        .section-title {
+            margin: 0 0 6px;
+            font-size: 16px;
+            font-weight: 800;
+        }
+
+        .section-description {
+            margin: 0 0 19px;
+            color: var(--muted);
+            font-size: 11px;
+            line-height: 1.6;
+        }
+
+        .error {
+            margin-bottom: 16px;
+            padding: 12px 14px;
+            border: 1px solid rgba(248, 113, 113, 0.25);
+            border-radius: 10px;
+            background: rgba(239, 68, 68, 0.09);
+            color: #fca5a5;
+            line-height: 1.6;
+            overflow-wrap: anywhere;
+        }
+
+        .field {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #e9e3f6;
+            font-size: 11px;
+            font-weight: 750;
+        }
+
+        .required {
+            color: #f0abfc;
+        }
+
+        input,
+        select,
+        textarea {
+            display: block;
+            width: 100%;
+            min-width: 0;
+            padding: 12px 13px;
+            border: 1px solid rgba(190, 170, 255, 0.18);
+            border-radius: 10px;
+            outline: none;
+            background: #0e0c19;
+            color: var(--text);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input,
+        select {
+            min-height: 43px;
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+            color: #777087;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--purple);
+            box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.12);
+        }
+
+        select {
+            cursor: pointer;
+        }
+
+        select option {
+            background: #151321;
+            color: white;
+        }
+
+        textarea {
+            min-height: 112px;
+            height: 112px;
+            resize: vertical;
+            line-height: 1.6;
+        }
+
+        .hint {
+            margin-top: 6px;
+            color: #827993;
+            font-size: 10px;
+            line-height: 1.5;
+        }
+
+        /* PRIORITY GUIDE */
+
+        .priority-guide {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 8px;
+            margin-top: 9px;
+        }
+
+        .priority-item {
+            min-width: 0;
+            padding: 9px 5px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            background: rgba(8, 7, 17, 0.48);
+            text-align: center;
+            transition: border-color 0.2s, background 0.2s;
+        }
+
+        .priority-item:hover {
+            border-color: rgba(192, 132, 252, 0.4);
+            background: rgba(168, 85, 247, 0.07);
+        }
+
+        .priority-item strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 10px;
+        }
+
+        .priority-item span {
+            color: #958ca9;
+            font-size: 9px;
+        }
+
+        .low {
+            color: #6ee7b7;
+        }
+
+        .medium {
+            color: #fcd34d;
+        }
+
+        .high {
+            color: #fdba74;
+        }
+
+        .urgent {
+            color: #f9a8d4;
+        }
+
+        /* BUTTONS */
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 42px;
+            padding: 11px 16px;
+            border: 1px solid transparent;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .submit-button {
+            background: linear-gradient(110deg, #7c3aed, #a855f7);
+            color: white;
+            box-shadow: 0 5px 18px rgba(124, 58, 237, 0.2);
+        }
+
+        .submit-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(124, 58, 237, 0.3);
+        }
+
+        .back-button {
+            border-color: var(--border);
+            background: #211d30;
+            color: #ded5ed;
+        }
+
+        .back-button:hover {
+            transform: translateY(-2px);
+            background: #2b2440;
+        }
+
+        .footer-note {
+            display: flex;
+            gap: 8px;
+            margin-top: 17px;
+            padding-top: 13px;
+            border-top: 1px solid var(--border);
+            color: #827993;
+            font-size: 10px;
+            line-height: 1.6;
+        }
+
+        .footer-icon {
+            color: var(--purple-light);
+        }
+
+        /* RIGHT INFORMATION PANEL */
+
+        .side-panel {
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            gap: 15px;
+        }
+
+        .side-heading {
+            margin: 0;
+            font-size: 15px;
+            font-weight: 800;
+        }
+
+        .side-subtitle {
+            margin: 6px 0 0;
+            color: var(--muted);
+            font-size: 11px;
+            line-height: 1.6;
+        }
+
+        .info-card {
+            padding: 15px;
+            border: 1px solid var(--border);
+            border-radius: 13px;
+            background: linear-gradient(140deg,
+            rgba(36, 29, 56, 0.9),
+            rgba(17, 15, 28, 0.95));
+        }
+
+        .info-icon {
+            display: grid;
+            place-items: center;
+            width: 36px;
+            height: 36px;
+            margin-bottom: 12px;
+            border: 1px solid rgba(192, 132, 252, 0.18);
+            border-radius: 11px;
+            background: rgba(168, 85, 247, 0.12);
+            color: #d8b4fe;
+            font-size: 18px;
+        }
+
+        .info-card h3 {
+            margin: 0 0 7px;
+            font-size: 12px;
+        }
+
+        .info-card p {
+            margin: 0;
+            color: #a59bb8;
+            font-size: 11px;
+            line-height: 1.7;
+        }
+
+        .steps {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-top: 15px;
+        }
+
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: 11px;
+        }
+
+        .step-number {
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+            width: 27px;
+            height: 27px;
+            border: 1px solid rgba(192, 132, 252, 0.2);
+            border-radius: 9px;
+            background: rgba(168, 85, 247, 0.1);
+            color: #d8b4fe;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .step h3 {
+            margin: 2px 0 4px;
+            font-size: 11px;
+        }
+
+        .step p {
+            margin: 0;
+            color: #958ca9;
+            font-size: 10px;
+            line-height: 1.6;
+        }
+
+        .privacy-card {
+            margin-top: auto;
+            padding: 14px;
+            border: 1px solid rgba(52, 211, 153, 0.15);
+            border-radius: 12px;
+            background: rgba(16, 185, 129, 0.055);
+        }
+
+        .privacy-title {
+            margin: 0 0 7px;
+            color: #6ee7b7;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .privacy-card p {
+            margin: 0;
+            color: #9bafaa;
+            font-size: 10px;
+            line-height: 1.7;
+        }
+
+        /* FOOTER */
+
+        .bottom-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 11px 17px;
+            border: 1px solid var(--border);
+            border-radius: 13px;
+            background: rgba(13, 11, 23, 0.94);
+            color: #8f86a5;
+            font-size: 10px;
+        }
+
+        .bottom-brand {
+            color: #c4b5fd;
+            font-weight: 750;
+        }
+
+        input:focus-visible,
+        select:focus-visible,
+        textarea:focus-visible,
+        button:focus-visible,
+        a:focus-visible {
+            outline: 2px solid var(--purple-light);
+            outline-offset: 3px;
+        }
+
+        /* RESPONSIVE */
+
+        @media (max-width: 900px) {
+            .workspace {
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            .side-panel {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                align-items: start;
+            }
+
+            .side-intro,
+            .privacy-card {
+                grid-column: 1 / -1;
+            }
+
+            .privacy-card {
+                margin-top: 0;
+            }
+        }
+
+        @media (max-width: 560px) {
+            body {
+                padding: 9px;
+            }
+
+            .app {
+                min-height: calc(100svh - 18px);
+            }
+
+            .topbar {
+                padding: 11px;
+            }
+
+            .brand-icon {
+                width: 36px;
+                height: 36px;
+            }
+
+            .brand-name {
+                font-size: 16px;
+            }
+
+            .brand-subtitle {
+                font-size: 8px;
+                letter-spacing: 0.6px;
+            }
+
+            .nav-link,
+            .live-pill {
+                padding: 9px;
+                font-size: 9px;
+            }
+
+            .hero {
+                padding: 21px 18px;
+            }
+
+            .form-content {
+                padding: 19px 17px;
+            }
+
+            .priority-guide {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .side-panel {
+                display: flex;
+                padding: 16px;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            .actions .button {
+                width: 100%;
+            }
+
+            .bottom-bar {
+                flex-wrap: wrap;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation: none !important;
+                transition: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- HEADER -->
+    <header class="topbar">
+
+        <a class="brand" th:href="@{/dashboard}">
+            <div class="brand-icon">S</div>
+
+            <div>
+                <h2 class="brand-name">Support<span>Flow</span></h2>
+                <div class="brand-subtitle">
+                    SUPPORT MANAGEMENT PLATFORM
+                </div>
+            </div>
+        </a>
+
+        <div class="nav-actions">
+
+            <a class="nav-link" th:href="@{/dashboard}">
+                ◈ Dashboard
+            </a>
+
+            <div class="live-pill">
+                <span class="live-dot"></span>
+                REQUEST PORTAL
+            </div>
+
+        </div>
+
+    </header>
+
+    <!-- MAIN WORKSPACE -->
+    <main class="workspace">
+
+        <!-- REQUEST FORM -->
+        <section class="main-panel">
+
+            <div class="hero">
+
+                <div class="eyebrow">
+                    <span class="eyebrow-dot"></span>
+                    CUSTOMER SUPPORT / NEW REQUEST
+                </div>
+
+                <h1>Create a <span>Request</span></h1>
+
+                <p class="hero-description">
+                    Tell us what you need help with. Provide the details
+                    below so our support team can understand your request
+                    and assist you.
+                </p>
+
+            </div>
+
+            <div class="form-content">
+
+                <div class="error"
+                     th:if="${error}"
+                     th:text="${error}"
+                     role="alert">
+                    Please check your input.
+                </div>
+
+                <h2 class="section-title">Request Information</h2>
+
+                <p class="section-description">
+                    Complete the fields below.
+                    <span class="required">*</span> Required fields.
+                </p>
+
+                <form th:action="@{/tickets}" method="post">
+
+                    <!-- REQUEST TITLE -->
+                    <div class="field">
+
+                        <label for="title">
+                            Request Title <span class="required">*</span>
+                        </label>
+
+                        <input
+                                type="text"
+                                id="title"
+                                name="title"
+                                maxlength="150"
+                                placeholder="e.g. Unable to access my account"
+                                autocomplete="off"
+                                required>
+
+                        <div class="hint">
+                            Enter a short, clear title for your request.
+                            Maximum 150 characters.
+                        </div>
+
+                    </div>
+
+                    <!-- REQUEST PRIORITY -->
+                    <div class="field">
+
+                        <label for="priority">
+                            Request Priority <span class="required">*</span>
+                        </label>
+
+                        <select id="priority" name="priority" required>
+
+                            <option value="LOW">
+                                Low — General request
+                            </option>
+
+                            <option value="MEDIUM" selected>
+                                Medium — Normal request
+                            </option>
+
+                            <option value="HIGH">
+                                High — Important request
+                            </option>
+
+                            <option value="URGENT">
+                                Urgent — Critical issue
+                            </option>
+
+                        </select>
+
+                        <div class="priority-guide">
+
+                            <div class="priority-item">
+                                <strong class="low">LOW</strong>
+                                <span>General request</span>
+                            </div>
+
+                            <div class="priority-item">
+                                <strong class="medium">MEDIUM</strong>
+                                <span>Normal request</span>
+                            </div>
+
+                            <div class="priority-item">
+                                <strong class="high">HIGH</strong>
+                                <span>Important request</span>
+                            </div>
+
+                            <div class="priority-item">
+                                <strong class="urgent">URGENT</strong>
+                                <span>Critical issue</span>
+                            </div>
+
+                        </div>
+
+                        <div class="hint">
+                            Choose the priority that best reflects
+                            the urgency of your request.
+                        </div>
+
+                    </div>
+
+                    <!-- REQUEST DESCRIPTION -->
+                    <div class="field">
+
+                        <label for="description">
+                            Request Description <span class="required">*</span>
+                        </label>
+
+                        <textarea
+                                id="description"
+                                name="description"
+                                maxlength="5000"
+                                placeholder="Describe what you need help with, what happened, and any steps you have already tried..."
+                                required></textarea>
+
+                        <div class="hint">
+                            Provide the relevant details.
+                            Maximum 5,000 characters.
+                        </div>
+
+                    </div>
+
+                    <!-- FORM ACTIONS -->
+                    <div class="actions">
+
+                        <button type="submit"
+                                class="button submit-button">
+                            Submit Request <span>→</span>
+                        </button>
+
+                        <a class="button back-button"
+                           th:href="@{/dashboard}">
+                            ← Back to Dashboard
+                        </a>
+
+                    </div>
+
+                </form>
+
+                <div class="footer-note">
+                    <span class="footer-icon">◆</span>
+
+                    <span>
+                        Your request will be associated with your account.
+                        Do not include passwords, PINs, or other sensitive
+                        login credentials in your description.
+                    </span>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- RIGHT INFORMATION PANEL -->
+        <aside class="side-panel">
+
+            <div class="side-intro">
+                <h2 class="side-heading">Request Portal</h2>
+
+                <p class="side-subtitle">
+                    Submit a support request and provide the information
+                    needed to help the support team assist you.
+                </p>
+            </div>
+
+            <div class="info-card">
+
+                <div class="info-icon">✦</div>
+
+                <h3>How it works</h3>
+
+                <p>
+                    Submit your request through the form. After submission,
+                    you can view it in your account and follow its progress.
+                </p>
+
+            </div>
+
+            <div>
+
+                <h3 class="side-heading">Three simple steps</h3>
+
+                <div class="steps">
+
+                    <div class="step">
+                        <div class="step-number">01</div>
+
+                        <div>
+                            <h3>Describe your request</h3>
+                            <p>
+                                Give your request a clear and meaningful title.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-number">02</div>
+
+                        <div>
+                            <h3>Set the priority</h3>
+                            <p>
+                                Select the priority that matches the urgency
+                                of your request.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-number">03</div>
+
+                        <div>
+                            <h3>Submit and track</h3>
+                            <p>
+                                Submit your request, check its status,
+                                and communicate with the support team.
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="privacy-card">
+
+                <h3 class="privacy-title">
+                    ◈ Keep your account secure
+                </h3>
+
+                <p>
+                    Share only information relevant to your request.
+                    Never include passwords, PINs, or confidential
+                    account credentials.
+                </p>
+
+            </div>
+
+        </aside>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bottom-bar">
+
+        <span>
+            <span class="bottom-brand">SupportFlow</span>
+            &nbsp; · &nbsp; Support Management System
+        </span>
+
+        <span>Secure request submission</span>
+
+    </footer>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,796 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Messages | SupportFlow</title>
+    <meta name="theme-color" content="#080d1b">
+
+    <style>
+        :root {
+            --bg: #080d1b;
+            --panel: #111a2e;
+            --border: rgba(148, 163, 184, .17);
+            --text: #f8fafc;
+            --muted: #94a3b8;
+            --blue: #60a5fa;
+            --purple: #a78bfa;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            padding: 22px 24px;
+            font-family: "Segoe UI", Inter, Arial, sans-serif;
+            color: var(--text);
+            background:
+                    radial-gradient(ellipse at 0% 0%,
+                    rgba(37, 99, 235, .15), transparent 42%),
+                    radial-gradient(ellipse at 100% 100%,
+                    rgba(124, 58, 237, .12), transparent 42%),
+                    var(--bg);
+        }
+
+        .ambient {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            opacity: .055;
+            background-image:
+                    linear-gradient(rgba(148,163,184,.2) 1px,
+                    transparent 1px),
+                    linear-gradient(90deg, rgba(148,163,184,.2) 1px,
+                    transparent 1px);
+            background-size: 45px 45px;
+            mask-image: linear-gradient(to bottom, black, transparent);
+        }
+
+        .glow {
+            position: fixed;
+            z-index: 0;
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            filter: blur(90px);
+            opacity: .12;
+            pointer-events: none;
+            animation: glowMove 12s ease-in-out infinite alternate;
+        }
+
+        .glow-blue {
+            top: 0;
+            left: -120px;
+            background: #3b82f6;
+        }
+
+        .glow-purple {
+            right: -120px;
+            bottom: 0;
+            background: #8b5cf6;
+            animation-delay: -5s;
+        }
+
+        @keyframes glowMove {
+            to {
+                transform: translate(30px, 25px);
+            }
+        }
+
+        @keyframes enterUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .page {
+            position: relative;
+            z-index: 1;
+            max-width: 1450px;
+            margin: 0 auto;
+            animation: enterUp .5s ease both;
+        }
+
+        /* TOP BAR */
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            padding: 15px 22px;
+            margin-bottom: 18px;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            background: rgba(17, 26, 46, .92);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-mark {
+            width: 42px;
+            height: 42px;
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+            border-radius: 13px;
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            box-shadow: 0 5px 20px rgba(79, 70, 229, .22);
+            font-size: 22px;
+            font-weight: 850;
+        }
+
+        .brand-name {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 800;
+        }
+
+        .brand-name span {
+            color: #93c5fd;
+        }
+
+        .brand-subtitle {
+            margin-top: 4px;
+            color: #8190aa;
+            font-size: 9px;
+            letter-spacing: 1.2px;
+        }
+
+        .top-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .secure-label {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 9px 12px;
+            border: 1px solid rgba(74, 222, 128, .18);
+            border-radius: 999px;
+            background: rgba(34, 197, 94, .07);
+            color: #86efac;
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+        .secure-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #4ade80;
+            box-shadow: 0 0 9px rgba(74, 222, 128, .65);
+        }
+
+        /* MAIN PANEL */
+
+        .container {
+            padding: 27px;
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            background: rgba(17, 26, 46, .95);
+            box-shadow: 0 24px 65px rgba(0, 0, 0, .2);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+
+        .eyebrow {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 9px;
+            color: #93c5fd;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+        }
+
+        .blue-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #60a5fa;
+            box-shadow: 0 0 10px #60a5fa;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(25px, 3vw, 33px);
+            letter-spacing: -.6px;
+        }
+
+        .accent {
+            color: #a78bfa;
+        }
+
+        .subtitle {
+            margin: 10px 0 0;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        /* BUTTONS */
+
+        .button {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            min-height: 42px;
+            padding: 11px 16px;
+            border: 1px solid transparent;
+            border-radius: 11px;
+            color: white;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 750;
+            cursor: pointer;
+            transition: transform .2s ease,
+            box-shadow .2s ease,
+            background .2s ease;
+        }
+
+        .back-button {
+            border-color: var(--border);
+            background: rgba(30, 41, 59, .8);
+            color: #dbeafe;
+        }
+
+        .back-button:hover {
+            transform: translateY(-2px);
+            background: #26344d;
+        }
+
+        .open-button {
+            background: linear-gradient(115deg, #2563eb, #6d45df);
+            box-shadow: 0 5px 18px rgba(59, 130, 246, .15);
+            white-space: nowrap;
+        }
+
+        .open-button:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(115deg, #3b82f6, #8b5cf6);
+            box-shadow: 0 8px 22px rgba(59, 130, 246, .24);
+        }
+
+        a:focus-visible,
+        button:focus-visible {
+            outline: 2px solid #93c5fd;
+            outline-offset: 3px;
+        }
+
+        /* SECTION HEADING */
+
+        .section-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .section-heading h2 {
+            margin: 0;
+            font-size: 17px;
+        }
+
+        .section-count {
+            padding: 7px 11px;
+            border: 1px solid rgba(96, 165, 250, .2);
+            border-radius: 999px;
+            background: rgba(59, 130, 246, .09);
+            color: #93c5fd;
+            font-size: 11px;
+            font-weight: 750;
+        }
+
+        /* TICKET CARDS */
+
+        .message-list {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 15px;
+        }
+
+        .message-card {
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 19px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            background: linear-gradient(135deg,
+            rgba(30, 41, 59, .57),
+            rgba(15, 23, 42, .55));
+            transition: transform .22s ease,
+            border-color .22s ease,
+            box-shadow .22s ease;
+            animation: enterUp .4s ease both;
+        }
+
+        .message-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(96, 165, 250, .42);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, .15);
+        }
+
+        .ticket-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .ticket-icon {
+            width: 39px;
+            height: 39px;
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+            border: 1px solid rgba(96, 165, 250, .15);
+            border-radius: 12px;
+            background: rgba(59, 130, 246, .1);
+            color: #93c5fd;
+            font-size: 18px;
+        }
+
+        .ticket-id {
+            margin-top: 4px;
+            color: #8190aa;
+            font-size: 10px;
+            font-weight: 750;
+            letter-spacing: .7px;
+        }
+
+        .ticket-title {
+            margin: 12px 0;
+            color: #f1f5f9;
+            font-size: 19px;
+            line-height: 1.4;
+            overflow-wrap: anywhere;
+        }
+
+        .ticket-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 9px 18px;
+            color: #94a3b8;
+            font-size: 11px;
+            line-height: 1.6;
+        }
+
+        .ticket-info strong {
+            color: #cbd5e1;
+        }
+
+        .badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 17px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 10px;
+            border: 1px solid transparent;
+            border-radius: 999px;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: .3px;
+        }
+
+        .status {
+            border-color: rgba(96, 165, 250, .16);
+            background: rgba(59, 130, 246, .13);
+            color: #93c5fd;
+        }
+
+        .priority-low {
+            background: rgba(34, 197, 94, .1);
+            color: #86efac;
+        }
+
+        .priority-medium {
+            background: rgba(234, 179, 8, .1);
+            color: #fcd34d;
+        }
+
+        .priority-high {
+            background: rgba(249, 115, 22, .12);
+            color: #fdba74;
+        }
+
+        .priority-urgent {
+            background: rgba(239, 68, 68, .12);
+            color: #fda4af;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border);
+        }
+
+        .conversation-label {
+            color: #8190aa;
+            font-size: 11px;
+        }
+
+        /* EMPTY STATE */
+
+        .empty {
+            padding: 45px 20px;
+            border: 1px dashed rgba(148, 163, 184, .25);
+            border-radius: 16px;
+            background: rgba(8, 13, 27, .28);
+            text-align: center;
+        }
+
+        .empty-icon {
+            width: 58px;
+            height: 58px;
+            display: grid;
+            place-items: center;
+            margin: 0 auto 16px;
+            border: 1px solid rgba(96, 165, 250, .18);
+            border-radius: 18px;
+            background: rgba(59, 130, 246, .1);
+            color: #93c5fd;
+            font-size: 25px;
+        }
+
+        .empty h2 {
+            margin: 0 0 9px;
+            font-size: 19px;
+        }
+
+        .empty p {
+            margin: 0 0 20px;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
+        /* FOOTER */
+
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 14px;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .footer-note {
+            color: #64748b;
+            font-size: 11px;
+        }
+
+        .logout-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 39px;
+            padding: 10px 15px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: #202b40;
+            color: #cbd5e1;
+            font-size: 11px;
+            font-weight: 750;
+            cursor: pointer;
+            transition: background .2s ease;
+        }
+
+        .logout-button:hover {
+            background: #334155;
+        }
+
+        @media (min-width: 1100px) {
+            .message-card {
+                min-height: 225px;
+            }
+        }
+
+        @media (max-width: 800px) {
+            body {
+                padding: 15px;
+            }
+
+            .container {
+                padding: 20px;
+            }
+
+            .message-list {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .topbar {
+                padding: 12px;
+            }
+
+            .container {
+                padding: 16px;
+                border-radius: 17px;
+            }
+
+            .header {
+                align-items: stretch;
+            }
+
+            .header > .button {
+                width: 100%;
+            }
+
+            .ticket-title {
+                font-size: 17px;
+            }
+
+            .card-footer {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .card-footer .button {
+                width: 100%;
+            }
+
+            .footer {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .logout-button {
+                width: 100%;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation: none !important;
+                transition: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="ambient" aria-hidden="true"></div>
+<div class="glow glow-blue" aria-hidden="true"></div>
+<div class="glow glow-purple" aria-hidden="true"></div>
+
+<div class="page">
+
+    <!-- BRAND HEADER -->
+    <header class="topbar">
+
+        <div class="brand">
+            <div class="brand-mark">S</div>
+
+            <div>
+                <h2 class="brand-name">Support<span>Flow</span></h2>
+                <div class="brand-subtitle">
+                    SUPPORT MANAGEMENT PLATFORM
+                </div>
+            </div>
+        </div>
+
+        <div class="top-actions">
+            <div class="secure-label">
+                <span class="secure-dot"></span>
+                MESSAGES CENTER
+            </div>
+        </div>
+
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="container">
+
+        <div class="header">
+
+            <div>
+                <div class="eyebrow">
+                    <span class="blue-dot"></span>
+                    CUSTOMER SUPPORT / INBOX
+                </div>
+
+                <h1>Messages &amp; <span class="accent">Conversations</span></h1>
+
+                <p class="subtitle">
+                    Follow your support requests and continue conversations
+                    with the support team in one place.
+                </p>
+            </div>
+
+            <a class="button back-button"
+               th:href="@{/dashboard}">
+                <span aria-hidden="true">←</span>
+                Back to Dashboard
+            </a>
+
+        </div>
+
+        <!-- EMPTY STATE -->
+        <div class="empty"
+             th:if="${#lists.isEmpty(tickets)}">
+
+            <div class="empty-icon" aria-hidden="true">✉</div>
+
+            <h2>No conversations yet</h2>
+
+            <p>
+                You have not created any support tickets yet.
+                Create a ticket to start a conversation with the support team.
+            </p>
+
+            <a class="button open-button"
+               th:href="@{/tickets/new}">
+                + Create a Ticket
+            </a>
+
+        </div>
+
+        <!-- TICKET LIST -->
+        <section th:unless="${#lists.isEmpty(tickets)}">
+
+            <div class="section-heading">
+                <h2>Your Support Tickets</h2>
+
+                <span class="section-count">
+                    <span th:text="${#lists.size(tickets)}">2</span>
+                    TICKETS
+                </span>
+            </div>
+
+            <div class="message-list">
+
+                <article class="message-card"
+                         th:each="ticket : ${tickets}">
+
+                    <div>
+
+                        <div class="ticket-top">
+
+                            <div>
+                                <div class="ticket-id">
+                                    TICKET #
+                                    <span th:text="${ticket.id}">1</span>
+                                </div>
+                            </div>
+
+                            <div class="ticket-icon" aria-hidden="true">
+                                ✉
+                            </div>
+
+                        </div>
+
+                        <h2 class="ticket-title"
+                            th:text="${ticket.title}">
+                            Payment Problem
+                        </h2>
+
+                        <div class="ticket-info">
+
+                            <span>
+                                <strong>Created:</strong>
+                                <span th:text="${ticket.createdAt}">
+                                    2026-10-20
+                                </span>
+                            </span>
+
+                        </div>
+
+                        <div class="badges">
+
+                            <span class="badge status"
+                                  th:text="${ticket.status}">
+                                OPEN
+                            </span>
+
+                            <span class="badge"
+                                  th:classappend="${ticket.priority != null
+                                      ? ' priority-' + #strings.toLowerCase(ticket.priority.name())
+                                      : ' priority-medium'}"
+                                  th:text="${ticket.priority != null
+                                      ? ticket.priority.name()
+                                      : 'MEDIUM'}">
+                                MEDIUM
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    <div class="card-footer">
+
+                        <span class="conversation-label">
+                            View messages and replies
+                        </span>
+
+                        <a class="button open-button"
+                           th:href="@{/tickets/{id}/replies(id=${ticket.id})}">
+                            Open Conversation
+                            <span aria-hidden="true">→</span>
+                        </a>
+
+                    </div>
+
+                </article>
+
+            </div>
+
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="footer">
+
+            <div class="footer-note">
+                SupportFlow · Customer Messages
+            </div>
+
+            <form th:action="@{/logout}" method="post">
+
+                <button type="submit" class="logout-button">
+                    Logout
+                </button>
+
+            </form>
+
+        </footer>
+
+    </main>
+
+</div>
+
+</body>
+</html>

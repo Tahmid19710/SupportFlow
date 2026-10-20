@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Create Account | SupportFlow</title>
+    <meta name="theme-color" content="#080d1b">
+
+    <style>
+        :root {
+            --bg: #080d1b;
+            --panel: rgba(17, 26, 46, .92);
+            --border: rgba(148, 163, 184, .17);
+            --text: #f8fafc;
+            --muted: #94a3b8;
+            --blue: #60a5fa;
+            --purple: #a78bfa;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            min-height: 100%;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            padding: 22px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: "Segoe UI", Inter, Arial, sans-serif;
+            color: var(--text);
+            background:
+                    radial-gradient(ellipse at 0% 0%,
+                    rgba(37, 99, 235, .17), transparent 42%),
+                    radial-gradient(ellipse at 100% 100%,
+                    rgba(124, 58, 237, .14), transparent 42%),
+                    var(--bg);
+            overflow-x: hidden;
+        }
+
+        button,
+        input {
+            font: inherit;
+        }
+
+        a {
+            color: inherit;
+        }
+
+        /* BACKGROUND */
+
+        .ambient {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            opacity: .07;
+            background-image:
+                    linear-gradient(rgba(148,163,184,.15) 1px,
+                    transparent 1px),
+                    linear-gradient(90deg, rgba(148,163,184,.15) 1px,
+                    transparent 1px);
+            background-size: 45px 45px;
+            mask-image: linear-gradient(to bottom, black, transparent);
+        }
+
+        .glow {
+            position: fixed;
+            width: 230px;
+            height: 230px;
+            border-radius: 50%;
+            filter: blur(90px);
+            opacity: .13;
+            pointer-events: none;
+            animation: glowMove 13s ease-in-out infinite alternate;
+        }
+
+        .glow-blue {
+            top: 0;
+            left: -130px;
+            background: #3b82f6;
+        }
+
+        .glow-purple {
+            right: -130px;
+            bottom: 0;
+            background: #8b5cf6;
+            animation-delay: -6s;
+        }
+
+        @keyframes glowMove {
+            to {
+                transform: translate(40px, 28px);
+            }
+        }
+
+        @keyframes enterUp {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .page {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 920px;
+            display: grid;
+            grid-template-columns: .9fr 1.1fr;
+            gap: 28px;
+            align-items: center;
+            animation: enterUp .55s ease both;
+        }
+
+        /* LEFT SIDE */
+
+        .intro-panel {
+            padding: 28px;
+        }
+
+        .brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 11px;
+            margin-bottom: 28px;
+        }
+
+        .brand-mark {
+            width: 43px;
+            height: 43px;
+            display: grid;
+            place-items: center;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            box-shadow: 0 6px 22px rgba(79, 70, 229, .27);
+            font-size: 22px;
+            font-weight: 850;
+        }
+
+        .brand-name {
+            margin: 0;
+            font-size: 19px;
+            font-weight: 800;
+        }
+
+        .brand-name span {
+            color: #93c5fd;
+        }
+
+        .eyebrow {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 14px;
+            color: #93c5fd;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1.6px;
+        }
+
+        .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #60a5fa;
+            box-shadow: 0 0 10px #60a5fa;
+        }
+
+        .intro-panel h1 {
+            margin: 0;
+            font-size: clamp(36px, 5vw, 52px);
+            line-height: 1.08;
+            letter-spacing: -1.6px;
+        }
+
+        .accent {
+            background: linear-gradient(90deg, #93c5fd, #c4b5fd);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .intro-panel p {
+            max-width: 410px;
+            margin: 18px 0 0;
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .benefits {
+            display: grid;
+            gap: 13px;
+            margin-top: 26px;
+        }
+
+        .benefit {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            color: #cbd5e1;
+            font-size: 12px;
+        }
+
+        .benefit-icon {
+            width: 34px;
+            height: 34px;
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: rgba(255,255,255,.04);
+            color: #93c5fd;
+        }
+
+        /* FORM CARD */
+
+        .card {
+            position: relative;
+            overflow: hidden;
+            padding: 30px;
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            background: var(--panel);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 25px 70px rgba(0,0,0,.28);
+        }
+
+        .card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 15%;
+            right: 15%;
+            height: 1px;
+            background: linear-gradient(
+                    90deg,
+                    transparent,
+                    #60a5fa,
+                    #a78bfa,
+                    transparent
+            );
+        }
+
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            display: grid;
+            place-items: center;
+            margin-bottom: 18px;
+            border: 1px solid rgba(96,165,250,.2);
+            border-radius: 15px;
+            background: linear-gradient(
+                    145deg,
+                    rgba(59,130,246,.18),
+                    rgba(139,92,246,.15)
+            );
+            color: #bfdbfe;
+            font-size: 21px;
+        }
+
+        .card h2 {
+            margin: 0;
+            font-size: 27px;
+            letter-spacing: -.6px;
+        }
+
+        .card-subtitle {
+            margin: 8px 0 22px;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
+        .field {
+            margin-bottom: 17px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #e2e8f0;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .input-wrap {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #7183a1;
+            pointer-events: none;
+        }
+
+        input {
+            width: 100%;
+            min-height: 49px;
+            padding: 0 14px 0 43px;
+            border: 1px solid rgba(148,163,184,.22);
+            border-radius: 11px;
+            outline: none;
+            background: rgba(8,13,27,.58);
+            color: #f8fafc;
+            font-size: 13px;
+            transition: border-color .2s ease,
+            box-shadow .2s ease,
+            background .2s ease;
+        }
+
+        input::placeholder {
+            color: #64748b;
+        }
+
+        input:focus {
+            border-color: #60a5fa;
+            background: rgba(8,13,27,.82);
+            box-shadow: 0 0 0 3px rgba(96,165,250,.11);
+        }
+
+        .password-input {
+            padding-right: 50px;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 34px;
+            height: 34px;
+            display: grid;
+            place-items: center;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            color: #94a3b8;
+            cursor: pointer;
+        }
+
+        .toggle-password:hover {
+            background: rgba(255,255,255,.06);
+            color: #e2e8f0;
+        }
+
+        .error {
+            margin: 6px 0 0;
+            color: #fca5a5;
+            font-size: 11px;
+            line-height: 1.5;
+        }
+
+        .password-hint {
+            margin-top: 7px;
+            color: #64748b;
+            font-size: 10px;
+            line-height: 1.5;
+        }
+
+        .submit-button {
+            width: 100%;
+            min-height: 50px;
+            margin-top: 8px;
+            border: 1px solid rgba(255,255,255,.12);
+            border-radius: 11px;
+            color: white;
+            background: linear-gradient(110deg, #2563eb, #4f46e5, #7c3aed);
+            box-shadow: 0 8px 24px rgba(79,70,229,.22);
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform .2s ease,
+            box-shadow .2s ease,
+            filter .2s ease;
+        }
+
+        .submit-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 11px 30px rgba(79,70,229,.32);
+            filter: brightness(1.07);
+        }
+
+        .signin {
+            margin: 20px 0 0;
+            text-align: center;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .signin a {
+            margin-left: 4px;
+            color: #93c5fd;
+            font-weight: 750;
+            text-decoration: none;
+        }
+
+        .signin a:hover {
+            color: #c4b5fd;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 780px) {
+            .page {
+                max-width: 520px;
+                grid-template-columns: 1fr;
+            }
+
+            .intro-panel {
+                padding: 8px 4px 0;
+            }
+
+            .benefits {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+
+            .benefit {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        @media (max-width: 520px) {
+            body {
+                padding: 14px;
+            }
+
+            .intro-panel h1 {
+                font-size: 36px;
+            }
+
+            .benefits {
+                grid-template-columns: 1fr;
+            }
+
+            .benefit {
+                flex-direction: row;
+                align-items: center;
+            }
+
+            .card {
+                padding: 23px 20px;
+                border-radius: 20px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation: none !important;
+                transition: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="ambient" aria-hidden="true"></div>
+<div class="glow glow-blue" aria-hidden="true"></div>
+<div class="glow glow-purple" aria-hidden="true"></div>
+
+<div class="page">
+
+    <!-- LEFT -->
+    <section class="intro-panel">
+
+        <div class="brand">
+            <div class="brand-mark">S</div>
+
+            <div>
+                <h2 class="brand-name">
+                    Support<span>Flow</span>
+                </h2>
+            </div>
+        </div>
+
+        <div class="eyebrow">
+            <span class="dot"></span>
+            CREATE YOUR WORKSPACE
+        </div>
+
+        <h1>
+            Join your
+            <span class="accent">support journey.</span>
+        </h1>
+
+        <p>
+            Create an account to submit support requests,
+            track ticket progress and stay connected with
+            the support team from one secure workspace.
+        </p>
+
+        <div class="benefits">
+
+            <div class="benefit">
+                <div class="benefit-icon">＋</div>
+                <span>Create and manage support tickets</span>
+            </div>
+
+            <div class="benefit">
+                <div class="benefit-icon">◷</div>
+                <span>Track ticket progress in real time</span>
+            </div>
+
+            <div class="benefit">
+                <div class="benefit-icon">✉</div>
+                <span>Keep conversations in one place</span>
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- FORM -->
+    <main class="card">
+
+        <div class="card-icon">✦</div>
+
+        <h2>Create account</h2>
+
+        <p class="card-subtitle">
+            Enter your details below to create your SupportFlow account.
+        </p>
+
+        <form th:action="@{/register}"
+              th:object="${registrationForm}"
+              method="post">
+
+            <!-- NAME -->
+            <div class="field">
+
+                <label for="name">Full name</label>
+
+                <div class="input-wrap">
+                    <span class="input-icon">◇</span>
+
+                    <input
+                            type="text"
+                            id="name"
+                            th:field="*{name}"
+                            maxlength="100"
+                            autocomplete="name"
+                            placeholder="Enter your full name"
+                            required>
+                </div>
+
+                <p class="error"
+                   th:if="${#fields.hasErrors('name')}"
+                   th:errors="*{name}">
+                    Name error
+                </p>
+
+            </div>
+
+            <!-- EMAIL -->
+            <div class="field">
+
+                <label for="email">Email address</label>
+
+                <div class="input-wrap">
+                    <span class="input-icon">✉</span>
+
+                    <input
+                            type="email"
+                            id="email"
+                            th:field="*{email}"
+                            maxlength="254"
+                            autocomplete="email"
+                            placeholder="you@example.com"
+                            required>
+                </div>
+
+                <p class="error"
+                   th:if="${#fields.hasErrors('email')}"
+                   th:errors="*{email}">
+                    Email error
+                </p>
+
+            </div>
+
+            <!-- PASSWORD -->
+            <div class="field">
+
+                <label for="password">Password</label>
+
+                <div class="input-wrap">
+                    <span class="input-icon">◆</span>
+
+                    <input
+                            class="password-input"
+                            type="password"
+                            id="password"
+                            th:field="*{password}"
+                            minlength="8"
+                            maxlength="64"
+                            autocomplete="new-password"
+                            placeholder="Create a secure password"
+                            required>
+
+                    <button
+                            class="toggle-password"
+                            type="button"
+                            id="togglePassword"
+                            aria-label="Show password">
+                        ◉
+                    </button>
+                </div>
+
+                <div class="password-hint">
+                    Use at least 8 characters.
+                </div>
+
+                <p class="error"
+                   th:if="${#fields.hasErrors('password')}"
+                   th:errors="*{password}">
+                    Password error
+                </p>
+
+            </div>
+
+            <button type="submit" class="submit-button">
+                Create My Account →
+            </button>
+
+        </form>
+
+        <p class="signin">
+            Already registered?
+            <a th:href="@{/login}">
+                Sign in
+            </a>
+        </p>
+
+    </main>
+
+</div>
+
+<script>
+    const passwordInput = document.getElementById("password");
+    const togglePassword = document.getElementById("togglePassword");
+
+    togglePassword.addEventListener("click", function () {
+        const isHidden = passwordInput.type === "password";
+
+        passwordInput.type = isHidden ? "text" : "password";
+
+        togglePassword.textContent = isHidden ? "◎" : "◉";
+
+        togglePassword.setAttribute(
+            "aria-label",
+            isHidden ? "Hide password" : "Show password"
+        );
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1144 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Sign In | SupportFlow</title>
+
+    <meta name="theme-color" content="#080d1b">
+
+    <style>
+        :root {
+            --bg: #080d1b;
+            --panel: rgba(17, 25, 48, 0.78);
+            --border: rgba(148, 163, 184, 0.17);
+            --text: #f8fafc;
+            --muted: #94a3b8;
+            --blue: #60a5fa;
+            --violet: #a78bfa;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            min-height: 100%;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Segoe UI", Inter, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        button,
+        input {
+            font: inherit;
+        }
+
+        a {
+            color: inherit;
+        }
+
+        /* BACKGROUND */
+
+        .background {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+            background:
+                    radial-gradient(
+                            ellipse at 15% 15%,
+                            rgba(37, 99, 235, 0.15),
+                            transparent 40%
+                    ),
+                    radial-gradient(
+                            ellipse at 85% 85%,
+                            rgba(124, 58, 237, 0.15),
+                            transparent 42%
+                    ),
+                    #080d1b;
+        }
+
+        .grid-overlay {
+            position: absolute;
+            inset: 0;
+            opacity: 0.17;
+            background-image:
+                    linear-gradient(
+                            rgba(148, 163, 184, 0.12) 1px,
+                            transparent 1px
+                    ),
+                    linear-gradient(
+                            90deg,
+                            rgba(148, 163, 184, 0.12) 1px,
+                            transparent 1px
+                    );
+            background-size: 48px 48px;
+            mask-image: linear-gradient(
+                    to bottom,
+                    black,
+                    transparent 90%
+            );
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(2px);
+            will-change: transform;
+        }
+
+        .orb-one {
+            width: 390px;
+            height: 390px;
+            top: -140px;
+            left: -100px;
+            background: radial-gradient(
+                    circle,
+                    rgba(59, 130, 246, 0.24),
+                    rgba(59, 130, 246, 0) 70%
+            );
+            animation: floatOne 13s ease-in-out infinite alternate;
+        }
+
+        .orb-two {
+            width: 440px;
+            height: 440px;
+            right: -150px;
+            bottom: -180px;
+            background: radial-gradient(
+                    circle,
+                    rgba(139, 92, 246, 0.24),
+                    rgba(139, 92, 246, 0) 70%
+            );
+            animation: floatTwo 16s ease-in-out infinite alternate;
+        }
+
+        .orb-three {
+            width: 260px;
+            height: 260px;
+            top: 42%;
+            left: 43%;
+            background: radial-gradient(
+                    circle,
+                    rgba(14, 165, 233, 0.10),
+                    transparent 70%
+            );
+            animation: floatOne 11s ease-in-out infinite alternate-reverse;
+        }
+
+        @keyframes floatOne {
+            from {
+                transform: translate3d(0, 0, 0) scale(1);
+            }
+            to {
+                transform: translate3d(45px, 35px, 0) scale(1.12);
+            }
+        }
+
+        @keyframes floatTwo {
+            from {
+                transform: translate3d(0, 0, 0) scale(1);
+            }
+            to {
+                transform: translate3d(-45px, -35px, 0) scale(1.1);
+            }
+        }
+
+        /* PAGE LAYOUT */
+
+        .page {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 24px 5.5%;
+        }
+
+        .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            animation: fadeDown 0.7s ease both;
+        }
+
+        .brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .brand-icon {
+            width: 43px;
+            height: 43px;
+            display: grid;
+            place-items: center;
+            border-radius: 14px;
+            color: white;
+            font-size: 22px;
+            font-weight: 800;
+            background: linear-gradient(
+                    135deg,
+                    #3b82f6,
+                    #7c3aed
+            );
+            box-shadow: 0 5px 25px rgba(79, 70, 229, 0.3);
+        }
+
+        .brand-name {
+            font-size: 19px;
+            font-weight: 750;
+            letter-spacing: -0.4px;
+        }
+
+        .brand-name span {
+            color: #93c5fd;
+        }
+
+        .nav-caption {
+            color: var(--muted);
+            font-size: 12px;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+        }
+
+        /* MAIN CONTENT */
+
+        .main {
+            width: 100%;
+            max-width: 1120px;
+            margin: auto;
+            padding: 48px 0;
+            display: grid;
+            grid-template-columns: 1fr 0.9fr;
+            align-items: center;
+            gap: 75px;
+        }
+
+        /* LEFT HERO */
+
+        .hero {
+            animation: fadeUp 0.8s 0.1s ease both;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            padding: 8px 12px;
+            border: 1px solid rgba(96, 165, 250, 0.24);
+            border-radius: 999px;
+            background: rgba(59, 130, 246, 0.08);
+            color: #bfdbfe;
+            font-size: 12px;
+            font-weight: 650;
+            letter-spacing: 0.4px;
+        }
+
+        .live-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #60a5fa;
+            box-shadow: 0 0 12px #60a5fa;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+                box-shadow: 0 0 12px #60a5fa;
+            }
+            50% {
+                opacity: 0.55;
+                box-shadow: 0 0 4px #60a5fa;
+            }
+        }
+
+        .hero h1 {
+            margin: 25px 0 18px;
+            font-size: clamp(38px, 4.5vw, 57px);
+            line-height: 1.09;
+            letter-spacing: -2px;
+            font-weight: 800;
+        }
+
+        .gradient-text {
+            color: #93c5fd;
+            background: linear-gradient(
+                    100deg,
+                    #93c5fd 0%,
+                    #a5b4fc 48%,
+                    #c4b5fd 100%
+            );
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-description {
+            max-width: 450px;
+            margin: 0;
+            color: #9aa9c1;
+            font-size: 15px;
+            line-height: 1.9;
+        }
+
+        .feature-list {
+            display: grid;
+            gap: 18px;
+            margin-top: 35px;
+        }
+
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+        }
+
+        .feature-icon {
+            width: 41px;
+            height: 41px;
+            flex-shrink: 0;
+            display: grid;
+            place-items: center;
+            border-radius: 13px;
+            border: 1px solid rgba(148, 163, 184, 0.15);
+            background: rgba(255, 255, 255, 0.045);
+            color: #93c5fd;
+            font-size: 18px;
+        }
+
+        .feature strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 13px;
+            font-weight: 650;
+        }
+
+        .feature span {
+            color: #8291aa;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        /* LOGIN CARD */
+
+        .login-card {
+            position: relative;
+            overflow: hidden;
+            padding: 36px;
+            border-radius: 25px;
+            border: 1px solid var(--border);
+            background: var(--panel);
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
+            box-shadow:
+                    0 25px 80px rgba(0, 0, 0, 0.30),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+            animation: cardEnter 0.85s 0.15s cubic-bezier(
+                    0.2, 0.8, 0.2, 1
+            ) both;
+        }
+
+        .login-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 12%;
+            right: 12%;
+            height: 1px;
+            background: linear-gradient(
+                    90deg,
+                    transparent,
+                    #60a5fa,
+                    #a78bfa,
+                    transparent
+            );
+            opacity: 0.9;
+        }
+
+        @keyframes cardEnter {
+            from {
+                opacity: 0;
+                transform: translateY(24px) scale(0.985);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeDown {
+            from {
+                opacity: 0;
+                transform: translateY(-12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card-icon {
+            width: 53px;
+            height: 53px;
+            display: grid;
+            place-items: center;
+            border-radius: 17px;
+            margin-bottom: 24px;
+            font-size: 24px;
+            color: #bfdbfe;
+            background: linear-gradient(
+                    145deg,
+                    rgba(59, 130, 246, 0.2),
+                    rgba(139, 92, 246, 0.16)
+            );
+            border: 1px solid rgba(96, 165, 250, 0.2);
+        }
+
+        .login-card h2 {
+            margin: 0 0 9px;
+            font-size: 29px;
+            letter-spacing: -0.8px;
+            color: #f8fafc;
+        }
+
+        .card-subtitle {
+            margin: 0 0 27px;
+            color: #94a3b8;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        /* ALERTS */
+
+        .alert {
+            padding: 12px 14px;
+            margin-bottom: 20px;
+            border-radius: 11px;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .error-alert {
+            color: #fecaca;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(248, 113, 113, 0.25);
+        }
+
+        .success-alert {
+            color: #bbf7d0;
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(74, 222, 128, 0.22);
+        }
+
+        /* FORM */
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 9px;
+            color: #e2e8f0;
+            font-size: 12px;
+            font-weight: 650;
+        }
+
+        .input-wrap {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #7183a1;
+            font-size: 17px;
+            pointer-events: none;
+            transition: color 0.2s ease;
+        }
+
+        .form-input {
+            width: 100%;
+            height: 51px;
+            padding: 0 46px;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 12px;
+            outline: none;
+            color: #f8fafc;
+            background: rgba(5, 10, 24, 0.48);
+            font-size: 13px;
+            transition:
+                    border-color 0.22s ease,
+                    box-shadow 0.22s ease,
+                    background 0.22s ease;
+        }
+
+        .form-input::placeholder {
+            color: #64748b;
+        }
+
+        .form-input:hover {
+            border-color: rgba(148, 163, 184, 0.38);
+        }
+
+        .form-input:focus {
+            border-color: #60a5fa;
+            background: rgba(5, 10, 24, 0.7);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
+        }
+
+        .input-wrap:focus-within .input-icon {
+            color: #93c5fd;
+        }
+
+        .password-input {
+            padding-right: 52px;
+        }
+
+        .toggle-password {
+            position: absolute;
+            top: 50%;
+            right: 9px;
+            transform: translateY(-50%);
+            display: grid;
+            place-items: center;
+            width: 34px;
+            height: 34px;
+            border: none;
+            border-radius: 8px;
+            color: #94a3b8;
+            background: transparent;
+            cursor: pointer;
+            transition: background 0.2s ease, color 0.2s ease;
+        }
+
+        .toggle-password:hover {
+            color: #e2e8f0;
+            background: rgba(255, 255, 255, 0.07);
+        }
+
+        /* REMEMBER / INFO */
+
+        .form-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin: 2px 0 23px;
+        }
+
+        .remember {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #94a3b8;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .remember input {
+            width: 15px;
+            height: 15px;
+            accent-color: #6366f1;
+            cursor: pointer;
+        }
+
+        .secure-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #94a3b8;
+            font-size: 11px;
+        }
+
+        /* SUBMIT BUTTON */
+
+        .submit-button {
+            position: relative;
+            width: 100%;
+            min-height: 52px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            color: #fff;
+            background: linear-gradient(
+                    105deg,
+                    #2563eb,
+                    #4f46e5 55%,
+                    #7c3aed
+            );
+            box-shadow: 0 8px 25px rgba(79, 70, 229, 0.24);
+            font-size: 14px;
+            font-weight: 750;
+            cursor: pointer;
+            transition:
+                    transform 0.2s ease,
+                    box-shadow 0.2s ease,
+                    filter 0.2s ease;
+        }
+
+        .submit-button::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            left: -110%;
+            width: 70%;
+            background: linear-gradient(
+                    100deg,
+                    transparent,
+                    rgba(255, 255, 255, 0.22),
+                    transparent
+            );
+            transform: skewX(-20deg);
+            transition: left 0.6s ease;
+        }
+
+        .submit-button:hover::before {
+            left: 140%;
+        }
+
+        .submit-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(79, 70, 229, 0.35);
+            filter: brightness(1.08);
+        }
+
+        .submit-button:active {
+            transform: translateY(0);
+        }
+
+        .submit-button:focus-visible,
+        .toggle-password:focus-visible {
+            outline: 2px solid #93c5fd;
+            outline-offset: 3px;
+        }
+
+        .button-arrow {
+            transition: transform 0.2s ease;
+        }
+
+        .submit-button:hover .button-arrow {
+            transform: translateX(4px);
+        }
+
+        /* REGISTER */
+
+        .register-line {
+            margin: 24px 0 0;
+            text-align: center;
+            color: #94a3b8;
+            font-size: 12px;
+        }
+
+        .register-link {
+            color: #93c5fd;
+            font-weight: 700;
+            text-decoration: none;
+            margin-left: 4px;
+        }
+
+        .register-link:hover {
+            color: #c4b5fd;
+            text-decoration: underline;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 24px;
+            color: #64748b;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: "";
+            height: 1px;
+            flex: 1;
+            background: rgba(148, 163, 184, 0.15);
+        }
+
+        .security-note {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 7px;
+            margin-top: 17px;
+            color: #718096;
+            font-size: 11px;
+        }
+
+        /* FOOTER */
+
+        .page-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            padding-top: 17px;
+            border-top: 1px solid rgba(148, 163, 184, 0.12);
+            color: #718096;
+            font-size: 11px;
+            animation: fadeUp 0.8s 0.3s ease both;
+        }
+
+        .footer-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .footer-status .live-dot {
+            width: 6px;
+            height: 6px;
+            background: #4ade80;
+            box-shadow: 0 0 9px rgba(74, 222, 128, 0.7);
+        }
+
+        /* RESPONSIVE */
+
+        @media (min-width: 1400px) {
+            .main {
+                max-width: 1190px;
+                gap: 95px;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .page {
+                padding: 22px 5%;
+            }
+
+            .main {
+                max-width: 530px;
+                grid-template-columns: 1fr;
+                gap: 34px;
+                padding: 42px 0;
+            }
+
+            .hero h1 {
+                font-size: 43px;
+            }
+
+            .feature-list {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 12px;
+                margin-top: 25px;
+            }
+
+            .feature {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 9px;
+            }
+
+            .feature span {
+                font-size: 11px;
+            }
+
+            .login-card {
+                padding: 32px;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .page {
+                padding: 18px 17px;
+            }
+
+            .nav-caption {
+                display: none;
+            }
+
+            .brand-icon {
+                width: 39px;
+                height: 39px;
+            }
+
+            .brand-name {
+                font-size: 17px;
+            }
+
+            .main {
+                gap: 27px;
+                padding: 36px 0;
+            }
+
+            .hero h1 {
+                margin-top: 20px;
+                font-size: 38px;
+                letter-spacing: -1.5px;
+            }
+
+            .hero-description {
+                font-size: 13px;
+                line-height: 1.8;
+            }
+
+            .feature-list {
+                grid-template-columns: 1fr;
+                gap: 13px;
+            }
+
+            .feature {
+                flex-direction: row;
+                align-items: center;
+            }
+
+            .feature-icon {
+                width: 37px;
+                height: 37px;
+            }
+
+            .login-card {
+                padding: 25px 21px;
+                border-radius: 21px;
+            }
+
+            .card-icon {
+                width: 47px;
+                height: 47px;
+                margin-bottom: 20px;
+            }
+
+            .login-card h2 {
+                font-size: 26px;
+            }
+
+            .form-meta {
+                align-items: flex-start;
+            }
+
+            .page-footer {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                scroll-behavior: auto !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="background" aria-hidden="true">
+    <div class="grid-overlay"></div>
+    <div class="orb orb-one"></div>
+    <div class="orb orb-two"></div>
+    <div class="orb orb-three"></div>
+</div>
+
+<div class="page">
+
+    <!-- NAVIGATION -->
+    <header class="navbar">
+
+        <a class="brand" th:href="@{/login}">
+            <span class="brand-icon">S</span>
+
+            <span class="brand-name">
+                Support<span>Flow</span>
+            </span>
+        </a>
+
+        <div class="nav-caption">
+            Support made simple
+        </div>
+
+    </header>
+
+    <!-- MAIN -->
+    <main class="main">
+
+        <!-- LEFT SIDE -->
+        <section class="hero">
+
+            <div class="eyebrow">
+                <span class="live-dot"></span>
+                YOUR SUPPORT, REIMAGINED
+            </div>
+
+            <h1>
+                Every issue<br>
+                deserves a<br>
+                <span class="gradient-text">better solution.</span>
+            </h1>
+
+            <p class="hero-description">
+                One place to raise requests, follow progress and
+                stay connected with your support team.
+                Sign in to continue your journey.
+            </p>
+
+            <div class="feature-list">
+
+                <div class="feature">
+                    <div class="feature-icon">✧</div>
+
+                    <div>
+                        <strong>Stay in control</strong>
+                        <span>Track your tickets and their status.</span>
+                    </div>
+                </div>
+
+                <div class="feature">
+                    <div class="feature-icon">↗</div>
+
+                    <div>
+                        <strong>Clear communication</strong>
+                        <span>Keep every support conversation together.</span>
+                    </div>
+                </div>
+
+                <div class="feature">
+                    <div class="feature-icon">◇</div>
+
+                    <div>
+                        <strong>One secure space</strong>
+                        <span>Access your support account in one place.</span>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- LOGIN FORM -->
+        <section class="login-card">
+
+            <div class="card-icon">↗</div>
+
+            <h2>Welcome back.</h2>
+
+            <p class="card-subtitle">
+                Enter your account details to sign in.
+            </p>
+
+            <!-- LOGIN ERROR -->
+            <div class="alert error-alert"
+                 th:if="${param.error}">
+                <strong>Sign-in unsuccessful.</strong>
+                Please check your email and password and try again.
+            </div>
+
+            <!-- LOGOUT MESSAGE -->
+            <div class="alert success-alert"
+                 th:if="${param.logout}">
+                You have been signed out successfully.
+            </div>
+
+            <!-- SPRING SECURITY LOGIN FORM -->
+            <form th:action="@{/login}" method="post">
+
+                <div class="form-group">
+
+                    <label class="form-label" for="email">
+                        Email address
+                    </label>
+
+                    <div class="input-wrap">
+
+                        <span class="input-icon" aria-hidden="true">
+                            ✉
+                        </span>
+
+                        <input
+                                class="form-input"
+                                type="email"
+                                id="email"
+                                name="email"
+                                placeholder="you@example.com"
+                                autocomplete="username"
+                                maxlength="254"
+                                required
+                                autofocus>
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label class="form-label" for="password">
+                        Password
+                    </label>
+
+                    <div class="input-wrap">
+
+                        <span class="input-icon" aria-hidden="true">
+                            ♙
+                        </span>
+
+                        <input
+                                class="form-input password-input"
+                                type="password"
+                                id="password"
+                                name="password"
+                                placeholder="Enter your password"
+                                autocomplete="current-password"
+                                required>
+
+                        <button
+                                class="toggle-password"
+                                type="button"
+                                id="togglePassword"
+                                aria-label="Show password"
+                                aria-pressed="false">
+
+                            <svg
+                                    id="eyeIcon"
+                                    width="19"
+                                    height="19"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="1.7"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    aria-hidden="true">
+
+                                <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/>
+                                <circle cx="12" cy="12" r="3"/>
+
+                            </svg>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <div class="form-meta">
+
+                    <label class="remember">
+                        <input type="checkbox" id="rememberMe">
+                        <span>Remember me</span>
+                    </label>
+
+                    <span class="secure-label">
+                        <span aria-hidden="true">◇</span>
+                        Secure sign-in
+                    </span>
+
+                </div>
+
+                <button class="submit-button" type="submit">
+
+                    <span>Sign In to Your Account</span>
+
+                    <span class="button-arrow" aria-hidden="true">
+                        →
+                    </span>
+
+                </button>
+
+            </form>
+
+            <div class="divider">
+                NEW HERE?
+            </div>
+
+            <p class="register-line">
+                Don't have an account?
+
+                <a class="register-link" th:href="@{/register}">
+                    Create an account
+                </a>
+            </p>
+
+            <div class="security-note">
+                <span aria-hidden="true">◆</span>
+                Your support workspace awaits.
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="page-footer">
+
+        <span>
+            © 2026 SupportFlow. Support that moves you forward.
+        </span>
+
+        <span class="footer-status">
+            <span class="live-dot"></span>
+            Your support workspace
+        </span>
+
+    </footer>
+
+</div>
+
+<script>
+    const passwordInput = document.getElementById("password");
+    const togglePassword = document.getElementById("togglePassword");
+    const eyeIcon = document.getElementById("eyeIcon");
+
+    togglePassword.addEventListener("click", function () {
+        const isHidden = passwordInput.type === "password";
+
+        passwordInput.type = isHidden ? "text" : "password";
+
+        togglePassword.setAttribute(
+            "aria-label",
+            isHidden ? "Hide password" : "Show password"
+        );
+
+        togglePassword.setAttribute(
+            "aria-pressed",
+            String(isHidden)
+        );
+
+        eyeIcon.innerHTML = isHidden
+            ? '<path d="M3 3l18 18"/><path d="M10.6 10.6a2 2 0 002.8 2.8"/><path d="M9.9 5.2A10.8 10.8 0 0112 5c6.4 0 10 7 10 7a15 15 0 01-3.1 3.8"/><path d="M6.2 6.2C3.5 8 2 12 2 12s3.6 7 10 7a10.4 10.4 0 004-.8"/>'
+            : '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>';
+    });
+</script>
+
+</body>
+</html>

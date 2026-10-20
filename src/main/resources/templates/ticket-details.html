@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Ticket Details | SupportFlow</title>
+    <meta name="theme-color" content="#080d1b">
+
+    <style>
+        :root {
+            --bg: #080d1b;
+            --panel: #111a2e;
+            --border: rgba(148, 163, 184, .17);
+            --text: #f8fafc;
+            --muted: #94a3b8;
+            --blue: #60a5fa;
+            --purple: #a78bfa;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            padding: 22px 16px;
+            font-family: "Segoe UI", Inter, Arial, sans-serif;
+            color: var(--text);
+            background:
+                    radial-gradient(ellipse at 0% 0%,
+                    rgba(37, 99, 235, .16), transparent 42%),
+                    radial-gradient(ellipse at 100% 100%,
+                    rgba(124, 58, 237, .13), transparent 42%),
+                    var(--bg);
+        }
+
+        .ambient {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            opacity: .06;
+            background-image:
+                    linear-gradient(rgba(148,163,184,.15) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(148,163,184,.15) 1px, transparent 1px);
+            background-size: 45px 45px;
+            mask-image: linear-gradient(to bottom, black, transparent);
+        }
+
+        .glow {
+            position: fixed;
+            z-index: 0;
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            filter: blur(90px);
+            opacity: .12;
+            pointer-events: none;
+            animation: glowMove 12s ease-in-out infinite alternate;
+        }
+
+        .glow-blue {
+            top: 0;
+            left: -120px;
+            background: #3b82f6;
+        }
+
+        .glow-purple {
+            right: -120px;
+            bottom: 0;
+            background: #8b5cf6;
+            animation-delay: -5s;
+        }
+
+        @keyframes glowMove {
+            to {
+                transform: translate(35px, 25px);
+            }
+        }
+
+        @keyframes enterUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .page {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 950px;
+            margin: 0 auto;
+            animation: enterUp .5s ease both;
+        }
+
+        /* TOP BAR */
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 14px;
+            padding: 14px 19px;
+            margin-bottom: 17px;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            background: rgba(17, 26, 46, .92);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+        }
+
+        .brand-mark {
+            width: 40px;
+            height: 40px;
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            box-shadow: 0 5px 20px rgba(79,70,229,.25);
+            font-size: 21px;
+            font-weight: 850;
+        }
+
+        .brand-name {
+            margin: 0;
+            font-size: 17px;
+            font-weight: 800;
+        }
+
+        .brand-name span {
+            color: #93c5fd;
+        }
+
+        .brand-subtitle {
+            margin-top: 4px;
+            color: #8190aa;
+            font-size: 9px;
+            letter-spacing: 1px;
+        }
+
+        /* MAIN CARD */
+
+        .container {
+            overflow: hidden;
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            background: rgba(17, 26, 46, .95);
+            box-shadow: 0 24px 65px rgba(0,0,0,.23);
+        }
+
+        .hero {
+            position: relative;
+            overflow: hidden;
+            padding: 25px 28px;
+            border-bottom: 1px solid var(--border);
+            background: linear-gradient(110deg,
+            rgba(37,99,235,.16),
+            transparent 65%,
+            rgba(124,58,237,.13));
+        }
+
+        .hero::after {
+            content: "";
+            position: absolute;
+            width: 170px;
+            height: 170px;
+            right: -40px;
+            top: -110px;
+            border: 1px solid rgba(147,197,253,.16);
+            border-radius: 50%;
+            box-shadow:
+                    0 0 0 24px rgba(147,197,253,.025),
+                    0 0 0 48px rgba(147,197,253,.02);
+            pointer-events: none;
+        }
+
+        .eyebrow {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 9px;
+            color: #93c5fd;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+        }
+
+        .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #60a5fa;
+            box-shadow: 0 0 10px #60a5fa;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(25px, 3vw, 33px);
+            letter-spacing: -.7px;
+        }
+
+        .accent {
+            color: #a78bfa;
+        }
+
+        .hero p {
+            margin: 8px 0 0;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .content {
+            padding: 25px 28px 28px;
+        }
+
+        /* OVERVIEW */
+
+        .overview {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            padding: 17px 19px;
+            margin-bottom: 21px;
+            border: 1px solid rgba(96,165,250,.18);
+            border-radius: 15px;
+            background: linear-gradient(110deg,
+            rgba(37,99,235,.09),
+            rgba(30,41,59,.35));
+        }
+
+        .ticket-label {
+            color: #8190aa;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .ticket-number {
+            margin-top: 5px;
+            font-size: 24px;
+            font-weight: 850;
+        }
+
+        .badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 11px;
+            border: 1px solid transparent;
+            border-radius: 999px;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: .3px;
+        }
+
+        .status {
+            color: #93c5fd;
+            background: rgba(59,130,246,.13);
+            border-color: rgba(96,165,250,.2);
+        }
+
+        .priority-low {
+            color: #86efac;
+            background: rgba(34,197,94,.1);
+        }
+
+        .priority-medium {
+            color: #fcd34d;
+            background: rgba(245,158,11,.1);
+        }
+
+        .priority-high {
+            color: #fdba74;
+            background: rgba(249,115,22,.11);
+        }
+
+        .priority-urgent {
+            color: #fda4af;
+            background: rgba(244,63,94,.11);
+        }
+
+        /* DETAILS */
+
+        .section-title {
+            margin: 0 0 14px;
+            font-size: 16px;
+            font-weight: 800;
+            color: #f1f5f9;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0,1fr));
+            gap: 12px;
+        }
+
+        .detail-card {
+            min-width: 0;
+            padding: 15px 17px;
+            border: 1px solid var(--border);
+            border-radius: 13px;
+            background: rgba(8,13,27,.35);
+            transition: border-color .2s ease,
+            background .2s ease;
+        }
+
+        .detail-card:hover {
+            border-color: rgba(96,165,250,.32);
+            background: rgba(30,41,59,.42);
+        }
+
+        .label {
+            margin-bottom: 7px;
+            color: #8190aa;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .value {
+            color: #e2e8f0;
+            font-size: 13px;
+            line-height: 1.7;
+            overflow-wrap: anywhere;
+        }
+
+        .description-card {
+            grid-column: 1 / -1;
+        }
+
+        .description {
+            min-height: 70px;
+            padding: 14px 15px;
+            border: 1px solid rgba(148,163,184,.1);
+            border-radius: 10px;
+            background: rgba(8,13,27,.6);
+            color: #cbd5e1;
+            font-size: 13px;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+        /* ACTIONS */
+
+        .actions {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 11px;
+            margin-top: 23px;
+            padding-top: 18px;
+            border-top: 1px solid var(--border);
+        }
+
+        .button {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            min-height: 42px;
+            padding: 11px 16px;
+            border: 1px solid transparent;
+            border-radius: 11px;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform .2s ease,
+            background .2s ease,
+            box-shadow .2s ease;
+        }
+
+        .conversation-button {
+            color: white;
+            background: linear-gradient(115deg, #2563eb, #6d45df);
+            box-shadow: 0 6px 20px rgba(59,130,246,.16);
+        }
+
+        .conversation-button:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(115deg, #3b82f6, #8b5cf6);
+            box-shadow: 0 9px 24px rgba(59,130,246,.24);
+        }
+
+        .back-button {
+            color: #cbd5e1;
+            background: rgba(30,41,59,.8);
+            border-color: var(--border);
+        }
+
+        .back-button:hover {
+            transform: translateY(-2px);
+            background: #26344d;
+        }
+
+        .footer-note {
+            margin-top: 20px;
+            color: #64748b;
+            font-size: 10px;
+            line-height: 1.7;
+        }
+
+        @media (max-width: 620px) {
+            body {
+                padding: 12px;
+            }
+
+            .topbar {
+                padding: 12px;
+            }
+
+            .brand-mark {
+                width: 36px;
+                height: 36px;
+            }
+
+            .hero {
+                padding: 20px;
+            }
+
+            .content {
+                padding: 18px;
+            }
+
+            .overview {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .description-card {
+                grid-column: auto;
+            }
+
+            .actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .actions .button {
+                width: 100%;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation: none !important;
+                transition: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="ambient" aria-hidden="true"></div>
+<div class="glow glow-blue" aria-hidden="true"></div>
+<div class="glow glow-purple" aria-hidden="true"></div>
+
+<div class="page">
+
+    <!-- TOP BAR -->
+    <header class="topbar">
+
+        <div class="brand">
+            <div class="brand-mark">S</div>
+
+            <div>
+                <h2 class="brand-name">
+                    Support<span>Flow</span>
+                </h2>
+
+                <div class="brand-subtitle">
+                    SUPPORT MANAGEMENT PLATFORM
+                </div>
+            </div>
+        </div>
+
+    </header>
+
+    <!-- MAIN CARD -->
+    <main class="container">
+
+        <section class="hero">
+
+            <div class="eyebrow">
+                <span class="dot"></span>
+                CUSTOMER SUPPORT / TICKET DETAILS
+            </div>
+
+            <h1>
+                Ticket <span class="accent">Details</span>
+            </h1>
+
+            <p>
+                Review your support request, current status
+                and continue the conversation with the support team.
+            </p>
+
+        </section>
+
+        <div class="content">
+
+            <!-- OVERVIEW -->
+            <section class="overview">
+
+                <div>
+                    <div class="ticket-label">TICKET REFERENCE</div>
+
+                    <div class="ticket-number">
+                        #<span th:text="${ticket.id}">1</span>
+                    </div>
+                </div>
+
+                <div class="badges">
+
+                    <span class="badge status"
+                          th:text="${ticket.status}">
+                        OPEN
+                    </span>
+
+                    <span class="badge"
+                          th:classappend="${ticket.priority != null
+                              ? ' priority-' + #strings.toLowerCase(ticket.priority.name())
+                              : ' priority-medium'}"
+                          th:text="${ticket.priority != null
+                              ? ticket.priority.name()
+                              : 'MEDIUM'}">
+                        MEDIUM
+                    </span>
+
+                </div>
+
+            </section>
+
+            <h2 class="section-title">Ticket Information</h2>
+
+            <div class="details-grid">
+
+                <!-- TITLE -->
+                <div class="detail-card">
+
+                    <div class="label">
+                        Title
+                    </div>
+
+                    <div class="value"
+                         th:text="${ticket.title}">
+                        Login Problem
+                    </div>
+
+                </div>
+
+                <!-- CREATED -->
+                <div class="detail-card">
+
+                    <div class="label">
+                        Created At
+                    </div>
+
+                    <div class="value"
+                         th:text="${ticket.createdAt}">
+                        2026-10-20
+                    </div>
+
+                </div>
+
+                <!-- STATUS -->
+                <div class="detail-card">
+
+                    <div class="label">
+                        Current Status
+                    </div>
+
+                    <div class="value"
+                         th:text="${ticket.status}">
+                        OPEN
+                    </div>
+
+                </div>
+
+                <!-- PRIORITY -->
+                <div class="detail-card">
+
+                    <div class="label">
+                        Priority Level
+                    </div>
+
+                    <div class="value"
+                         th:text="${ticket.priority != null
+                            ? ticket.priority.name()
+                            : 'MEDIUM'}">
+                        MEDIUM
+                    </div>
+
+                </div>
+
+                <!-- DESCRIPTION -->
+                <div class="detail-card description-card">
+
+                    <div class="label">
+                        Issue Description
+                    </div>
+
+                    <div class="description"
+                         th:text="${ticket.description}">
+                        Full ticket description.
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- ACTIONS -->
+            <div class="actions">
+
+                <a class="button conversation-button"
+                   th:href="@{/tickets/{id}/replies(id=${ticket.id})}">
+                    ✉ View Conversation &amp; Reply
+                    <span aria-hidden="true">→</span>
+                </a>
+
+                <a class="button back-button"
+                   th:href="@{/tickets}">
+                    ← Back to My Tickets
+                </a>
+
+            </div>
+
+            <div class="footer-note">
+                SupportFlow · Customer Ticket Details
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+</body>
+</html>
